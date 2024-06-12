@@ -2,8 +2,10 @@ import math
 import turtle as t
 from turtle import TurtleScreen, RawTurtle, Shape
 from tkinter import *
+import textwrap
 import time
 import sys
+
 
 def drawArc(t1, r, angle):
     arc_length = 2 * math.pi * r * angle / 360
@@ -33,13 +35,34 @@ def flower(n):
     my_turtle.end_fill()
 
 
-def drawLoop(x1, y1, heading):
+def draw_eyes(x1, y1, heading):
     my_turtle.pensize(5)
     my_turtle.penup()
     my_turtle.goto(x1, y1)
     my_turtle.setheading(heading)
     my_turtle.pendown()
     my_turtle.fillcolor("#000")
+    my_turtle.begin_fill()
+    step = 0.3
+
+    for i in range(2):
+        for j in range(60):
+            if j < 30:
+                step += 0.02
+            else:
+                step -= 0.02
+            my_turtle.forward(step)
+            my_turtle.left(3)
+    my_turtle.end_fill()
+
+
+def draw_nose(x1, y1, heading):
+    my_turtle.pensize(5)
+    my_turtle.penup()
+    my_turtle.goto(x1, y1)
+    my_turtle.setheading(heading)
+    my_turtle.pendown()
+    my_turtle.fillcolor("#e7be04")
     my_turtle.begin_fill()
     step = 0.3
 
@@ -68,13 +91,18 @@ def draw_text_on_screen(turtle, message, font_path, font_size, color=(0, 0, 0)):
     from PIL import Image, ImageDraw, ImageFont
 
     # Create an empty image to draw the text
-    image_size = (400, 100)  # Adjust size as needed
+    image_size = (600, 100)  # Adjust size as needed
     image = Image.new("RGB", image_size, (255, 255, 255))  # White canvas
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype(font_path, font_size)
 
+    image_width = 400
+    margin = 20
+    available_width = image_width - 2 * margin  # Deducting margin from both sides
+    wrap_size = available_width
+    wrapped_text = textwrap.fill(message, width=wrap_size)
     # Draw the text directly on the canvas
-    draw.text((0, 0), message, fill=color, font=font)
+    draw.text((0, 0), wrapped_text, fill=color, font=font)
 
     # Save the image as a GIF file
     image.save("text_image.gif", format="GIF")
@@ -138,9 +166,9 @@ for y2 in range(157):
         my_turtle.left(0.5)
 
 
-drawLoop(-100, 60, 350)
-drawLoop(50, 40, 350)
-drawLoop(-40, 30, 260)
+draw_eyes(-100, 60, 350)
+draw_eyes(50, 40, 350)
+draw_nose(-40, 30, 260)
 
 my_turtle.penup()
 my_turtle.goto(20, 180)
@@ -160,7 +188,7 @@ flower(200)
 my_turtle.end_fill()
 my_turtle.penup()
 
-my_turtle.goto(24, 180)
+my_turtle.goto(22, 179)
 my_turtle.setheading(270)
 my_turtle.pendown()
 my_turtle.fillcolor("#e7be04")
@@ -347,14 +375,16 @@ for i in range(2):
         my_turtle.left(3)
 my_turtle.end_fill()
 
-name = sys.argv[1]
+
+message = sys.argv[1]
 my_turtle.penup()
-my_turtle.setpos(400, -50)
+my_turtle.setpos(40, -325)
 draw_text_on_screen(
     my_turtle,
-    f"Hi {name}!",
+    f"{message}",
     "/System/Library/Fonts/Supplemental/Brush Script.ttf",
-    100,
+    75,
     color=(248, 200, 220),
 )
+
 t.done()
