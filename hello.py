@@ -3,8 +3,12 @@ import turtle as t
 from turtle import TurtleScreen, RawTurtle, Shape
 from tkinter import *
 import textwrap
-import time
+import tempfile
+import requests
 import sys
+
+import re
+import emoji
 
 
 def drawArc(t1, r, angle):
@@ -77,15 +81,39 @@ def draw_nose(x1, y1, heading):
     my_turtle.end_fill()
 
 
+def download_emoji_image(emoji_code):
+    """
+    Downloads an emoji image from Emojipedia's S3 bucket and saves it as a temporary PNG file.
+
+    Args:
+        emoji_code: The emoji code in the format used by Emojipedia.
+
+    Returns:
+        The file path of the saved emoji image if successful, otherwise None.
+    """
+    url = (
+        f"https://emojipedia-us.s3.amazonaws.com/thumbs/120/apple/13.2/{emoji_code}.png"
+    )
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    tmp_file.write(chunk)
+            return tmp_file.name
+    return None
+
+
 def draw_text_on_screen(turtle, message, font_path, font_size, color=(0, 0, 0)):
     """
-    Draws text on the Turtle graphics canvas.
+    Draws text and emojis on the Turtle graphics canvas using separate fonts.
 
     Args:
         turtle: The Turtle object where the text will be drawn.
-        message: The text to be drawn.
-        font_path: Path to the TrueType Font (TTF) file.
+        message: The text to be drawn, which may contain emojis.
+        text_font_path: Path to the TrueType Font (TTF) file for regular text.
         font_size: Size of the font in pixels.
+        emoji_font_path: Path to the TrueType Font (TTF) file for rendering emojis.
         color: Optional color for the text (defaults to black).
     """
     from PIL import Image, ImageDraw, ImageFont
@@ -101,6 +129,7 @@ def draw_text_on_screen(turtle, message, font_path, font_size, color=(0, 0, 0)):
     available_width = image_width - 2 * margin  # Deducting margin from both sides
     wrap_size = available_width
     wrapped_text = textwrap.fill(message, width=wrap_size)
+
     # Draw the text directly on the canvas
     draw.text((0, 0), wrapped_text, fill=color, font=font)
 
@@ -382,7 +411,7 @@ my_turtle.setpos(40, -325)
 draw_text_on_screen(
     my_turtle,
     f"{message}",
-    "/System/Library/Fonts/Supplemental/Brush Script.ttf",
+    "/Users/nick/Library/Fonts/Sauce Code Pro Nerd Font Complete.ttf",
     75,
     color=(248, 200, 220),
 )
